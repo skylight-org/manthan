@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "manthan"
+version = "0.1.0"
+description = "Fast inference for looped architectures. v0.1: feedback caching for FBT-style feedback transformers"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "third_party/fbt/LICENSE"]
+authors = [{ name = "Kumar Krishna Agrawal" }]
+requires-python = ">=3.10,<3.13"
+# The versions we test with. torch 2.6.0 from PyPI is built with CUDA 12.4. tiktoken, rustbpe and filelock are
+# imported by the FBT model code (third_party/fbt).
+dependencies = [
+    "torch==2.6.0",
+    "flash-attn==2.7.4.post1",
+    "tiktoken>=0.11",
+    "rustbpe>=0.1",
+    "filelock>=3.19",
+    "numpy",
+    "pyarrow",
+    "huggingface_hub>=0.30",
+]
+keywords = ["looped transformer", "feedback transformer", "latent feedback", "speculative decoding", "jacobi",
+            "kv cache", "inference"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: POSIX :: Linux",
+    "Environment :: GPU :: NVIDIA CUDA",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+"FBT paper" = "https://arxiv.org/abs/2608.08888"
+"FBT code" = "https://github.com/xidulu/Full-bandwidth-transformer"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+# Linux x86-64 with an NVIDIA GPU; the lock file covers only this platform.
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
+
+[tool.uv.sources]
+# FlashAttention's prebuilt wheels for torch 2.6 and CUDA 12, so `uv sync` compiles nothing.
+flash-attn = [
+    { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl", marker = "python_version == '3.10'" },
+    { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp311-cp311-linux_x86_64.whl", marker = "python_version == '3.11'" },
+    { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp312-cp312-linux_x86_64.whl", marker = "python_version == '3.12'" },
+]
+
+[tool.setuptools]
+packages = ["manthan", "nanochat"]
+
+[tool.setuptools.package-dir]
+# the FBT authors' model code: their repository as a git submodule, pinned at commit 5ff05f5
+nanochat = "third_party/fbt/nanochat"

@@ -1,0 +1,3 @@
+[submodule "third_party/fbt"]
+	path = third_party/fbt
+	url = https://github.com/xidulu/Full-bandwidth-transformer
